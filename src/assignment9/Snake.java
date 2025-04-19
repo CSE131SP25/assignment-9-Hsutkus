@@ -6,12 +6,16 @@ public class Snake {
 
 	private static final double SEGMENT_SIZE = 0.02;
 	private static final double MOVEMENT_SIZE = SEGMENT_SIZE * 1.5;
+	private static final double TRAIL_AMOUNT = 0.004;
 	private LinkedList<BodySegment> segments;
 	private double deltaX;
 	private double deltaY;
+	private double snakeX = 0.5;
+	private double snakeY = 0.5;
 	
 	public Snake() {
-		//FIXME - set up the segments instance variable
+		this.segments = new LinkedList<>();
+		segments.add(new BodySegment(snakeX, snakeY, SEGMENT_SIZE));
 		deltaX = 0;
 		deltaY = 0;
 	}
@@ -37,14 +41,28 @@ public class Snake {
 	 * based on the current direction of travel
 	 */
 	public void move() {
-		//FIXME
+		
+		for (int i = segments.size() - 1; i > 0; i--) {
+	        BodySegment prev = segments.get(i - 1);
+	        segments.get(i).setX(prev.getX());
+	        segments.get(i).setY(prev.getY());
+		}
+		
+		BodySegment bodySegment = segments.get(0);
+		double newX = bodySegment.getX() + deltaX;
+		double newY = bodySegment.getY() + deltaY;
+		bodySegment.setX(newX);
+		bodySegment.setY(newY);
 	}
 	
 	/**
 	 * Draws the snake by drawing each segment
 	 */
 	public void draw() {
-		//FIXME
+		for(int i = 0; i < segments.size(); i++) {
+			BodySegment bodySegment = segments.get(i);
+			bodySegment.draw();
+		}
 	}
 	
 	/**
@@ -52,8 +70,15 @@ public class Snake {
 	 * @param f the food to be eaten
 	 * @return true if the snake successfully ate the food
 	 */
+	
 	public boolean eatFood(Food f) {
-		//FIXME
+		if (Math.sqrt(Math.pow(segments.get(0).getX() - f.getX(), 2) + Math.pow(segments.get(0).getY() - f.getY(), 2)) <= SEGMENT_SIZE + f.getFoodSize()) {
+			BodySegment tail = segments.get(segments.size()-1);
+			BodySegment newSegment = new BodySegment(tail.getX(), tail.getY(), SEGMENT_SIZE);
+			segments.add(newSegment);
+			
+			return true;
+		}
 		return false;
 	}
 	
@@ -62,7 +87,9 @@ public class Snake {
 	 * @return whether or not the head is in the bounds of the window
 	 */
 	public boolean isInbounds() {
-		//FIXME
-		return true;
+		if (segments.get(0).getX() > SEGMENT_SIZE && segments.get(0).getX() < 1 - SEGMENT_SIZE && segments.get(0).getY() > SEGMENT_SIZE && segments.get(0).getY() < 1 - SEGMENT_SIZE) {
+			return true;
+		}
+		return false;
 	}
 }
